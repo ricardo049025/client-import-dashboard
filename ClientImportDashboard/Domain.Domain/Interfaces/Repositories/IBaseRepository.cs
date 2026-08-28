@@ -15,9 +15,13 @@ public interface IBaseRepository <T> where T : class
     Task<T> FindByFiltersAsync(Expression<Func<T, bool>> filters);
     Task<T> FindByFiltersAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include);
     Task<TResult> FindByFiltersAsync<TResult>(Expression<Func<T, bool>> filters, Expression<Func<T, TResult>> selectors);
+    Task<T?> FindFirstOrDefaultAsync(Expression<Func<T, bool>> filters);
+    Task<T?> FindFirstOrDefaultAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include);
     Task<T> FindByFiltersWithNoTrackingAsync(Expression<Func<T, bool>> filters);
     Task<T> FindByFiltersWithNoTrackingAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include);
     Task<TResult> FindByFiltersWithNoTrackingAsync<TResult>(Expression<Func<T, bool>> filters, Expression<Func<T, TResult>> selectors);
+    Task<T?> FindFirstOrDefaultWithNoTrackingAsync(Expression<Func<T, bool>> filters);
+    Task<T?> FindFirstOrDefaultWithNoTrackingAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include);
     Task<TValue?> GetValueByFiltersAsync<TValue>(Expression<Func<T, bool>> filters, Expression<Func<T, TValue>> selector);
     Task<decimal> GetValueSumAsync(Expression<Func<T, decimal>> selector);
     Task<decimal> GetValueSumByFiltersAsync(Expression<Func<T, bool>> filters, Expression<Func<T, decimal>> selector);

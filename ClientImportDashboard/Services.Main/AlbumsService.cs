@@ -36,11 +36,11 @@ public class AlbumsService(IBaseRepository<Album> albumRepository, IBaseReposito
 
     public async Task<AlbumDetailResponse?> GetAlbumByIdAsync(int albumId)
     {
-        var album = await albumRepository.FindByFiltersWithNoTrackingAsync(x => x.Id == albumId,y => y
+        var album = await albumRepository.FindFirstOrDefaultWithNoTrackingAsync(x => x.Id == albumId,y => y
                                          .Include(value => value.Tracks)
                                          .ThenInclude(track => track.Genre));
 
-        if (album.Id == default) return null;
+        if (album is null) return null;
 
         return new AlbumDetailResponse
         {
@@ -73,9 +73,9 @@ public class AlbumsService(IBaseRepository<Album> albumRepository, IBaseReposito
 
     public async Task<AlbumResponse?> UpdateAlbumAsync(int albumId, UpsertAlbumRequest request)
     {
-        var album = await albumRepository.FindByFiltersAsync(x => x.Id == albumId);
+        var album = await albumRepository.FindFirstOrDefaultAsync(x => x.Id == albumId);
 
-        if (album.Id == default) return null;
+        if (album is null) return null;
 
         album.Title = request.Title.Trim();
         album.ArtistName = request.ArtistName.Trim();
@@ -88,9 +88,11 @@ public class AlbumsService(IBaseRepository<Album> albumRepository, IBaseReposito
 
     public async Task<bool> DeleteAlbumAsync(int albumId)
     {
-        var album = await albumRepository.FindByFiltersAsync(value => value.Id == albumId);
+        var album = await albumRepository.FindFirstOrDefaultAsync(
+            value => value.Id == albumId,
+            query => query.Include(value => value.Tracks));
 
-        if (album.Id == 0) return false;
+        if (album is null) return false;
         if (album.Tracks.Count > 0) await trackRepository.DeleteRangeAsync(album.Tracks);
 
         await albumRepository.DeleteAsync(album);

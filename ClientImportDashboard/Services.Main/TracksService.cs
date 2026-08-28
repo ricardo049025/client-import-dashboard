@@ -10,7 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Services.Main;
 
-public class TracksService(IBaseRepository<Track> trackRepository, IBaseRepository<Album> albumRepository, IBaseRepository<Genre> genreRepository) : ITracksService
+public class TracksService(
+    IBaseRepository<Track> trackRepository,
+    IBaseRepository<Album> albumRepository,
+    IBaseRepository<Genre> genreRepository,
+    IBaseRepository<TrackImportHistory> trackImportHistoryRepository) : ITracksService
 {
     public async Task<IEnumerable<TrackResponse>> GetTracksByAlbumAsync(int albumId, string? genre, bool? isActive)
     {
@@ -43,13 +47,14 @@ public class TracksService(IBaseRepository<Track> trackRepository, IBaseReposito
         if (string.IsNullOrWhiteSpace(normalizedTitle)) throw new ArgumentException("Title is required.");
         if (request.DurationSeconds <= 0)throw new ArgumentException("DurationSeconds must be greater than zero.");
 
-        var genre = await genreRepository.FindByFiltersWithNoTrackingAsync(value => value.Name == request.Genre.Trim());
-        if (genre.Id == default) throw new ArgumentException("Genre is not supported.");
+        var genre = await genreRepository.FindFirstOrDefaultWithNoTrackingAsync(value => value.Name == request.Genre.Trim());
+        if (genre is null) throw new ArgumentException("Genre is not supported.");
 
         var hasTrackNumberConflict = await trackRepository.GetCountAsync(track =>track.AlbumId == albumId && track.TrackNumber == request.TrackNumber) > 0;
         if (hasTrackNumberConflict) throw new InvalidOperationException("Track number must be unique within the album.");
 
-        var hasTitleConflict = await trackRepository.GetCountAsync(track => track.AlbumId == albumId && track.Title.ToLower() == normalizedTitle.ToLower()) > 0;
+        var albumTracks = await trackRepository.GetByFiltersWithNoTrackingAsync(track => track.AlbumId == albumId);
+        var hasTitleConflict = albumTracks.Any(track => string.Equals(track.Title, normalizedTitle, StringComparison.OrdinalIgnoreCase));
         if (hasTitleConflict) throw new InvalidOperationException("Track title must be unique within the album.");
 
         var trackEntity = new Track
@@ -78,22 +83,23 @@ public class TracksService(IBaseRepository<Track> trackRepository, IBaseReposito
 
     public async Task<TrackResponse?> UpdateTrackAsync(int trackId, UpsertTrackRequest request)
     {
-        var track = await trackRepository.FindByFiltersAsync(value => value.Id == trackId);
-        if (track.Id == default) return null;
+        var track = await trackRepository.FindFirstOrDefaultAsync(value => value.Id == trackId);
+        if (track is null) return null;
 
         var normalizedTitle = request.Title.Trim();
         if (string.IsNullOrWhiteSpace(normalizedTitle)) throw new ArgumentException("Title is required.");
 
         if (request.DurationSeconds <= 0) throw new ArgumentException("DurationSeconds must be greater than zero.");
 
-        var genre = await genreRepository.FindByFiltersWithNoTrackingAsync(value => value.Name == request.Genre.Trim());
-        if (genre.Id == default) throw new ArgumentException("Genre is not supported.");
+        var genre = await genreRepository.FindFirstOrDefaultWithNoTrackingAsync(value => value.Name == request.Genre.Trim());
+        if (genre is null) throw new ArgumentException("Genre is not supported.");
 
         var hasTrackNumberConflict = await trackRepository.GetCountAsync(value => value.Id != trackId && value.AlbumId == track.AlbumId && value.TrackNumber == request.TrackNumber) > 0;
         if (hasTrackNumberConflict) throw new InvalidOperationException("Track number must be unique within the album.");
 
-        var hasTitleConflict = await trackRepository.GetCountAsync(value =>
-            value.Id != trackId && value.AlbumId == track.AlbumId && value.Title.ToLower() == normalizedTitle.ToLower()) > 0;
+        var albumTracks = await trackRepository.GetByFiltersWithNoTrackingAsync(value =>
+            value.Id != trackId && value.AlbumId == track.AlbumId);
+        var hasTitleConflict = albumTracks.Any(value => string.Equals(value.Title, normalizedTitle, StringComparison.OrdinalIgnoreCase));
         if (hasTitleConflict) throw new InvalidOperationException("Track title must be unique within the album.");
 
         track.TrackNumber = request.TrackNumber;
@@ -118,8 +124,8 @@ public class TracksService(IBaseRepository<Track> trackRepository, IBaseReposito
 
     public async Task<bool> DeleteTrackAsync(int trackId)
     {
-        var track = await trackRepository.FindByFiltersAsync(value => value.Id == trackId);
-        if (track.Id == default) return false;
+        var track = await trackRepository.FindFirstOrDefaultAsync(value => value.Id == trackId);
+        if (track is null) return false;
 
         await trackRepository.DeleteAsync(track);
         return true;
@@ -261,6 +267,13 @@ public class TracksService(IBaseRepository<Track> trackRepository, IBaseReposito
 
             await trackRepository.AddRangeAsync(entities);
             importedRows = validRows.Count;
+
+            await trackImportHistoryRepository.AddAsync(new TrackImportHistory
+            {
+                AlbumId = albumId,
+                ImportedTracksCount = importedRows,
+                ImportedAtUtc = DateTime.UtcNow
+            });
         }
 
         return new BulkImportTracksResult

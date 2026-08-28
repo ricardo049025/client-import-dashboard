@@ -14,101 +14,86 @@ public static class ApiEndPoints
 
     private static void ConfigureEndpoints(WebApplication app)
     {
-        //for Genres endpoints
+        #region Dashboard Endpoints
+        app.MapGet(ApiEndpointsPath.DashboardV1, async (IDashboardService dashboardService) =>
+            Results.Ok(await dashboardService.GetDashboardSummaryAsync()));
+        #endregion
+
+        #region Genres Endpoints
         app.MapGet(ApiEndpointsPath.V1GetGenres, async (IGenresService genresService) => Results.Ok(await genresService.GetAllGenresAsync()));
+        #endregion
 
-        //for Albums endpoints
-        app.MapGet(ApiEndpointsPath.Albums, async (string? search, string? genre, IAlbumsService albumsService) =>
-            Results.Ok(await albumsService.GetAlbumsAsync(search, genre)));
+        #region Albums Endpoints
+        app.MapGet(ApiEndpointsPath.AlbumsV1, async (string? search, string? genre, IAlbumsService albumsService) => Results.Ok(await albumsService.GetAlbumsAsync(search, genre)));
 
-        app.MapGet(ApiEndpointsPath.AlbumById, async (int id, IAlbumsService albumsService) =>
+        app.MapGet(ApiEndpointsPath.AlbumByIdV1, async (int id, IAlbumsService albumsService) =>
         {
             var album = await albumsService.GetAlbumByIdAsync(id);
             return album is null ? Results.NotFound() : Results.Ok(album);
         });
 
-        app.MapPost(ApiEndpointsPath.Albums, async (UpsertAlbumRequest request, IAlbumsService albumsService) =>
+        app.MapPost(ApiEndpointsPath.AlbumsV1, async (UpsertAlbumRequest request, IAlbumsService albumsService) =>
         {
-            if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.ArtistName))
-                return Results.BadRequest("Title and ArtistName are required.");
-
+            if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.ArtistName)) return Results.BadRequest("Title and ArtistName are required.");
             var created = await albumsService.CreateAlbumAsync(request);
             return Results.Created($"/api/albums/{created.Id}", created);
         });
 
-        app.MapPut(ApiEndpointsPath.AlbumById, async (int id, UpsertAlbumRequest request, IAlbumsService albumsService) =>
+        app.MapPut(ApiEndpointsPath.AlbumByIdV1, async (int id, UpsertAlbumRequest request, IAlbumsService albumsService) =>
         {
-            if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.ArtistName))
-                return Results.BadRequest("Title and ArtistName are required.");
-
+            if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.ArtistName)) return Results.BadRequest("Title and ArtistName are required.");
             var updated = await albumsService.UpdateAlbumAsync(id, request);
             return updated is null ? Results.NotFound() : Results.Ok(updated);
         });
 
-        app.MapDelete(ApiEndpointsPath.AlbumById, async (int id, IAlbumsService albumsService) =>
+        app.MapDelete(ApiEndpointsPath.AlbumByIdV1, async (int id, IAlbumsService albumsService) =>
         {
             var deleted = await albumsService.DeleteAlbumAsync(id);
             return deleted ? Results.NoContent() : Results.NotFound();
         });
 
-        //for Tracks endpoints
-        app.MapGet(ApiEndpointsPath.AlbumTracks, async (int albumId, string? genre, bool? isActive, ITracksService tracksService) =>
-            Results.Ok(await tracksService.GetTracksByAlbumAsync(albumId, genre, isActive)));
+        #endregion
 
-        app.MapPost(ApiEndpointsPath.AlbumTracks, async (int albumId, UpsertTrackRequest request, ITracksService tracksService) =>
+        #region Trancks EndPoints
+        app.MapGet(ApiEndpointsPath.AlbumTracksV1, async (int albumId, string? genre, bool? isActive, ITracksService tracksService) => Results.Ok(await tracksService.GetTracksByAlbumAsync(albumId, genre, isActive)));
+
+        app.MapPost(ApiEndpointsPath.AlbumTracksV1, async (int albumId, UpsertTrackRequest request, ITracksService tracksService) =>
         {
             try
             {
                 var created = await tracksService.CreateTrackAsync(albumId, request);
-                return created is null
-                    ? Results.NotFound("Album not found.")
-                    : Results.Created($"/api/tracks/{created.Id}", created);
+                return created is null ? Results.NotFound("Album not found.") : Results.Created($"/api/tracks/{created.Id}", created);
             }
-            catch (ArgumentException ex)
-            {
-                return Results.BadRequest(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Results.BadRequest(ex.Message);
-            }
+            catch (ArgumentException ex) { return Results.BadRequest(ex.Message); }
+            catch (InvalidOperationException ex) { return Results.BadRequest(ex.Message); }
         });
 
-        app.MapPut(ApiEndpointsPath.TrackById, async (int id, UpsertTrackRequest request, ITracksService tracksService) =>
+        app.MapPut(ApiEndpointsPath.TrackByIdV1, async (int id, UpsertTrackRequest request, ITracksService tracksService) =>
         {
             try
             {
                 var updated = await tracksService.UpdateTrackAsync(id, request);
                 return updated is null ? Results.NotFound() : Results.Ok(updated);
             }
-            catch (ArgumentException ex)
-            {
-                return Results.BadRequest(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Results.BadRequest(ex.Message);
-            }
+            catch (ArgumentException ex) { return Results.BadRequest(ex.Message); }
+            catch (InvalidOperationException ex) { return Results.BadRequest(ex.Message); }
         });
 
-        app.MapDelete(ApiEndpointsPath.TrackById, async (int id, ITracksService tracksService) =>
+        app.MapDelete(ApiEndpointsPath.TrackByIdV1, async (int id, ITracksService tracksService) =>
         {
             var deleted = await tracksService.DeleteTrackAsync(id);
             return deleted ? Results.NoContent() : Results.NotFound();
         });
 
-        app.MapPost(ApiEndpointsPath.AlbumTracksBulkImport, async (int albumId, BulkImportTracksRequest request, ITracksService tracksService) =>
+        app.MapPost(ApiEndpointsPath.AlbumTracksBulkImportV1, async (int albumId, BulkImportTracksRequest request, ITracksService tracksService) =>
         {
             try
             {
                 var result = await tracksService.BulkImportTracksAsync(albumId, request);
                 return result is null ? Results.NotFound("Album not found.") : Results.Ok(result);
             }
-            catch (ArgumentException ex)
-            {
-                return Results.BadRequest(ex.Message);
-            }
+            catch (ArgumentException ex) { return Results.BadRequest(ex.Message); }
         });
-
+        #endregion
     }
 }
