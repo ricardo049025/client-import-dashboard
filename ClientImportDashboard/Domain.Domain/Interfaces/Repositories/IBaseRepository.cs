@@ -7,12 +7,16 @@ public interface IBaseRepository <T> where T : class
     Task<IEnumerable<T>> GetAllAsync();
     Task<IEnumerable<T>> GetAllWithNoTrackingAsync();
     Task<IEnumerable<T>> GetByFiltersAsync(Expression<Func<T, bool>> filters);
+    Task<IEnumerable<T>> GetByFiltersAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include);
     Task<IEnumerable<T>> GetByFiltersWithNoTrackingAsync(Expression<Func<T, bool>> filters);
+    Task<IEnumerable<T>> GetByFiltersWithNoTrackingAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include);
     Task<IEnumerable<TResult>> GetByFiltersAsync<TResult>(Expression<Func<T, bool>> filters, Expression<Func<T, TResult>> selectors);
     Task<IEnumerable<TResult>> GetByFiltersWithNoTrackingAsync<TResult>(Expression<Func<T, bool>> filters, Expression<Func<T, TResult>> selectors);
     Task<T> FindByFiltersAsync(Expression<Func<T, bool>> filters);
+    Task<T> FindByFiltersAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include);
     Task<TResult> FindByFiltersAsync<TResult>(Expression<Func<T, bool>> filters, Expression<Func<T, TResult>> selectors);
     Task<T> FindByFiltersWithNoTrackingAsync(Expression<Func<T, bool>> filters);
+    Task<T> FindByFiltersWithNoTrackingAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include);
     Task<TResult> FindByFiltersWithNoTrackingAsync<TResult>(Expression<Func<T, bool>> filters, Expression<Func<T, TResult>> selectors);
     Task<TValue?> GetValueByFiltersAsync<TValue>(Expression<Func<T, bool>> filters, Expression<Func<T, TValue>> selector);
     Task<decimal> GetValueSumAsync(Expression<Func<T, decimal>> selector);
