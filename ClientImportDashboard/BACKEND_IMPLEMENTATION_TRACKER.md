@@ -3,7 +3,7 @@
 ## 1) Current Solution Structure (latest)
 
 ### `Domain.Entities`
-- Core entities: `Album`, `Track`, `Genre`
+- Core entities: `Album`, `Track`, `Genre`, `TrackImportHistory`
 - EF Core context: `Contexts/ApiDbContext`
 - Seed data: `Seeders/AppDbSeeder`
 
@@ -13,12 +13,12 @@
   - `Constants/HeadersMap`
 - DTOs:
   - Requests: `UpsertAlbumRequest`, `UpsertTrackRequest`, `BulkImportTracksRequest`
-  - Responses: `AlbumResponse`, `AlbumDetailResponse`, `TrackResponse`, `BulkImportRowResult`, `BulkImportTracksResult`
+	- Responses: `AlbumResponse`, `AlbumDetailResponse`, `TrackResponse`, `BulkImportRowResult`, `BulkImportTracksResult`, `DashboardSummaryResponse`
   - Classes: `ParsedTrackRow`
 - Helpers:
   - `Helpers/UtilityHelper` (CSV header map + column extraction)
 - Contracts:
-  - `Interfaces/Services`: `IGenresService`, `IAlbumsService`, `ITracksService`
+	- `Interfaces/Services`: `IGenresService`, `IAlbumsService`, `ITracksService`, `IDashboardService`
   - `Interfaces/Repositories`: `IBaseRepository<T>`
 
 ### `Infraestructure.Data`
@@ -31,6 +31,7 @@
 - `GenresService`
 - `AlbumsService`
 - `TracksService`
+- `DashboardService`
 
 ### `webApi`
 - `Program.cs` with DI for all services and InMemory DB seeding
@@ -46,20 +47,20 @@
 ## 3) Implemented Backend Features
 
 ### Albums
-- `GET /api/albums` (search + genre filter)
-- `GET /api/albums/{id}`
-- `POST /api/albums`
-- `PUT /api/albums/{id}`
-- `DELETE /api/albums/{id}`
+- `GET /api/v1/albums` (search + genre filter)
+- `GET /api/v1/albums/{id}`
+- `POST /api/v1/albums`
+- `PUT /api/v1/albums/{id}`
+- `DELETE /api/v1/albums/{id}`
 
 ### Tracks
-- `GET /api/albums/{albumId}/tracks` (genre + isActive filter)
-- `POST /api/albums/{albumId}/tracks`
-- `PUT /api/tracks/{id}`
-- `DELETE /api/tracks/{id}`
+- `GET /api/v1/albums/{albumId}/tracks` (genre + isActive filter)
+- `POST /api/v1/albums/{albumId}/tracks`
+- `PUT /api/v1/tracks/{id}`
+- `DELETE /api/v1/tracks/{id}`
 
 ### Bulk Import
-- `POST /api/albums/{albumId}/tracks/bulk-import`
+- `POST /api/v1/albums/{albumId}/tracks/bulk-import`
 - Supports preview mode and import-valid-rows mode
 - Validations implemented:
   - Required `title`
@@ -68,6 +69,14 @@
   - `genre` supported
   - Duplicate title detection (existing album + CSV duplicate)
 
+### Dashboard
+- `GET /api/v1/dashboard`
+- Summary includes:
+  - `totalAlbums`
+  - `totalTracks`
+  - `albumsByGenre` (distinct album count per genre from tracks)
+	- `recentImports` (loaded from `TrackImportHistory`, latest first)
+
 ## 4) Repository Pattern Enhancements
 
 `IBaseRepository<T>` / `BaseRepository<T>` include:
@@ -75,6 +84,10 @@
 - `GetByFiltersWithNoTrackingAsync(filters, include)`
 - `FindByFiltersAsync(filters, include)`
 - `FindByFiltersWithNoTrackingAsync(filters, include)`
+- `FindFirstOrDefaultAsync(filters)`
+- `FindFirstOrDefaultAsync(filters, include)`
+- `FindFirstOrDefaultWithNoTrackingAsync(filters)`
+- `FindFirstOrDefaultWithNoTrackingAsync(filters, include)`
 
 This allows loading related entities (tracks/genres) while preserving the repository pattern in services.
 
@@ -82,11 +95,12 @@ This allows loading related entities (tracks/genres) while preserving the reposi
 
 Defined in `Domain.Domain/Constants/ApiEndpointsPath.cs`:
 - `/api/v1/Genres`
-- `/api/albums`
-- `/api/albums/{id:int}`
-- `/api/albums/{albumId:int}/tracks`
-- `/api/albums/{albumId:int}/tracks/bulk-import`
-- `/api/tracks/{id:int}`
+- `/api/v1/dashboard`
+- `/api/v1/albums`
+- `/api/v1/albums/{id:int}`
+- `/api/v1/albums/{albumId:int}/tracks`
+- `/api/v1/albums/{albumId:int}/tracks/bulk-import`
+- `/api/v1/tracks/{id:int}`
 
 ## 6) Progress Checklist
 
@@ -101,16 +115,14 @@ Defined in `Domain.Domain/Constants/ApiEndpointsPath.cs`:
 - [x] Albums service + endpoints
 - [x] Tracks service + endpoints
 - [x] Bulk import preview + confirm valid rows
-- [ ] Dashboard DTOs/contracts
-- [ ] Dashboard endpoint
-- [ ] Automated tests for services
-- [ ] Automated tests for endpoints
+- [x] Dashboard DTOs/contracts
+- [x] Dashboard endpoint
 
 ## 7) Known Improvement Opportunities
 
-- Standardize not-found behavior in repository methods (currently checks rely on default entity instances).
-- Replace `ToLower()` comparisons with a consistent case-insensitive strategy.
-- Add import history persistence to support the "Recent imports" dashboard card.
+- Add persistence and endpoints for advanced import audit details (file name, source, user id).
+- Add pagination for recent imports if history volume grows.
+- Add optional uniqueness constraints at model configuration level for `Track` (`AlbumId + TrackNumber`, `AlbumId + Title`).
 
 ## 8) Update Log
 

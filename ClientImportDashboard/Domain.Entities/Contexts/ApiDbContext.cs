@@ -9,6 +9,7 @@ public  class ApiDbContext: DbContext
     public DbSet<Track> Tracks { get; set; }
     public DbSet<Album> Albums { get; set; }
     public DbSet<Genre> Genres { get; set; }
+    public DbSet<TrackImportHistory> TrackImportHistory { get; set; }
 
     //protected override void OnModelCreating(ModelBuilder modelBuilder)
     //{

@@ -13,6 +13,7 @@ builder.Services.RegisterRepositories();
 builder.Services.AddScoped<IGenresService, Services.Main.GenresService>();
 builder.Services.AddScoped<IAlbumsService, Services.Main.AlbumsService>();
 builder.Services.AddScoped<ITracksService, Services.Main.TracksService>();
+builder.Services.AddScoped<IDashboardService, Services.Main.DashboardService>();
 
 var app = builder.Build();
 //if (app.Environment.IsDevelopment()) app.MapOpenApi();

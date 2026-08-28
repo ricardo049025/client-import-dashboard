@@ -116,6 +116,22 @@ public class BaseRepository<T>: IBaseRepository<T> where T : class
     public async Task<TResult> FindByFiltersAsync<TResult>(Expression<Func<T, bool>> filters, Expression<Func<T, TResult>> selectors) => await this._context.Set<T>().Where(filters).Select(selectors).FirstOrDefaultAsync() ?? Activator.CreateInstance<TResult>();
 
     /// <summary>
+    /// Finds an entity of type T based on given filters asynchronously.
+    /// </summary>
+    /// <param name="filters">The filter expression.</param>
+    /// <returns>The found entity or null.</returns>
+    public async Task<T?> FindFirstOrDefaultAsync(Expression<Func<T, bool>> filters) => await this._context.Set<T>().FirstOrDefaultAsync(filters);
+
+    /// <summary>
+    /// Finds an entity of type T based on given filters asynchronously with includes.
+    /// </summary>
+    /// <param name="filters">The filter expression.</param>
+    /// <param name="include">The include function.</param>
+    /// <returns>The found entity or null.</returns>
+    public async Task<T?> FindFirstOrDefaultAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include)
+        => await include(this._context.Set<T>()).FirstOrDefaultAsync(filters);
+
+    /// <summary>
     /// Finds a projected entity of type TResult based on given filters without tracking asynchronously.
     /// </summary>
     /// <typeparam name="TResult">The type of the projected entity.</typeparam>
@@ -123,6 +139,22 @@ public class BaseRepository<T>: IBaseRepository<T> where T : class
     /// <param name="selectors">The projection expression.</param>
     /// <returns>The found projected entity or a default instance of TResult.</returns>
     public async Task<TResult> FindByFiltersWithNoTrackingAsync<TResult>(Expression<Func<T, bool>> filters, Expression<Func<T, TResult>> selectors) => await this._context.Set<T>().AsNoTracking().Where(filters).Select(selectors).FirstOrDefaultAsync() ?? Activator.CreateInstance<TResult>();
+
+    /// <summary>
+    /// Finds an entity of type T based on given filters without tracking asynchronously.
+    /// </summary>
+    /// <param name="filters">The filter expression.</param>
+    /// <returns>The found entity or null.</returns>
+    public async Task<T?> FindFirstOrDefaultWithNoTrackingAsync(Expression<Func<T, bool>> filters) => await this._context.Set<T>().AsNoTracking().FirstOrDefaultAsync(filters);
+
+    /// <summary>
+    /// Finds an entity of type T based on given filters without tracking asynchronously with includes.
+    /// </summary>
+    /// <param name="filters">The filter expression.</param>
+    /// <param name="include">The include function.</param>
+    /// <returns>The found entity or null.</returns>
+    public async Task<T?> FindFirstOrDefaultWithNoTrackingAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include)
+        => await include(this._context.Set<T>()).AsNoTracking().FirstOrDefaultAsync(filters);
 
     /// <summary>
     /// Retrieves a value based on given filters asynchronously.
