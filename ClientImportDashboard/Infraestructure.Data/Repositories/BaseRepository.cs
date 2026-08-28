@@ -32,11 +32,29 @@ public class BaseRepository<T>: IBaseRepository<T> where T : class
     public async Task<IEnumerable<T>> GetByFiltersAsync(Expression<Func<T, bool>> filters) => await this._context.Set<T>().Where(filters).ToListAsync();
 
     /// <summary>
+    /// Retrieves entities of type T based on given filters asynchronously with includes.
+    /// </summary>
+    /// <param name="filters">The filter expression.</param>
+    /// <param name="include">The include function.</param>
+    /// <returns>An enumerable collection of entities.</returns>
+    public async Task<IEnumerable<T>> GetByFiltersAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include)
+        => await include(this._context.Set<T>()).Where(filters).ToListAsync();
+
+    /// <summary>
     /// Retrieves entities of type T based on given filters without tracking asynchronously.
     /// </summary>
     /// <param name="filters">The filter expression.</param>
     /// <returns>An enumerable collection of entities.</returns>
     public async Task<IEnumerable<T>> GetByFiltersWithNoTrackingAsync(Expression<Func<T, bool>> filters) => await this._context.Set<T>().AsNoTracking().Where(filters).ToListAsync();
+
+    /// <summary>
+    /// Retrieves entities of type T based on given filters without tracking asynchronously with includes.
+    /// </summary>
+    /// <param name="filters">The filter expression.</param>
+    /// <param name="include">The include function.</param>
+    /// <returns>An enumerable collection of entities.</returns>
+    public async Task<IEnumerable<T>> GetByFiltersWithNoTrackingAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include)
+        => await include(this._context.Set<T>()).AsNoTracking().Where(filters).ToListAsync();
 
     /// <summary>
     /// Retrieves projected entities of type TResult based on given filters asynchronously.
@@ -64,11 +82,29 @@ public class BaseRepository<T>: IBaseRepository<T> where T : class
     public async Task<T> FindByFiltersAsync(Expression<Func<T, bool>> filters) => await this._context.Set<T>().FirstOrDefaultAsync(filters) ?? Activator.CreateInstance<T>();
 
     /// <summary>
+    /// Finds an entity of type T based on given filters asynchronously with includes.
+    /// </summary>
+    /// <param name="filters">The filter expression.</param>
+    /// <param name="include">The include function.</param>
+    /// <returns>The found entity or a default instance of T.</returns>
+    public async Task<T> FindByFiltersAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include)
+        => await include(this._context.Set<T>()).FirstOrDefaultAsync(filters) ?? Activator.CreateInstance<T>();
+
+    /// <summary>
     /// Finds an entity of type T based on given filters without tracking asynchronously.
     /// </summary>
     /// <param name="filters">The filter expression.</param>
     /// <returns>The found entity or a default instance of T.</returns>
     public async Task<T> FindByFiltersWithNoTrackingAsync(Expression<Func<T, bool>> filters) => await this._context.Set<T>().AsNoTracking().FirstOrDefaultAsync(filters) ?? Activator.CreateInstance<T>();
+
+    /// <summary>
+    /// Finds an entity of type T based on given filters without tracking asynchronously with includes.
+    /// </summary>
+    /// <param name="filters">The filter expression.</param>
+    /// <param name="include">The include function.</param>
+    /// <returns>The found entity or a default instance of T.</returns>
+    public async Task<T> FindByFiltersWithNoTrackingAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include)
+        => await include(this._context.Set<T>()).AsNoTracking().FirstOrDefaultAsync(filters) ?? Activator.CreateInstance<T>();
 
     /// <summary>
     /// Finds a projected entity of type TResult based on given filters asynchronously.

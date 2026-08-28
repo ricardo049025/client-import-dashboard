@@ -11,6 +11,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<ApiDbContext>(options => options.UseInMemoryDatabase("ClientImportDb"));
 builder.Services.RegisterRepositories();
 builder.Services.AddScoped<IGenresService, Services.Main.GenresService>();
+builder.Services.AddScoped<IAlbumsService, Services.Main.AlbumsService>();
+builder.Services.AddScoped<ITracksService, Services.Main.TracksService>();
 
 var app = builder.Build();
 //if (app.Environment.IsDevelopment()) app.MapOpenApi();
