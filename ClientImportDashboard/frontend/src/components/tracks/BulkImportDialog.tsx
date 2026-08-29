@@ -1,3 +1,4 @@
+import DownloadIcon from '@mui/icons-material/Download';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import {
   Alert,
@@ -15,6 +16,16 @@ import {
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { useMemo, useState, type ChangeEvent } from 'react';
 import type { BulkImportTracksResult } from '../../api/types';
+
+const CSV_TEMPLATE_CONTENT = [
+  'trackNumber,title,durationSeconds,genre,isActive',
+  '1,Neon Skyline,212,Pop,true',
+  '2,Broken Circuit,198,Electronic,true',
+  '3,Slow Motion Love,245,R&B,false',
+  '4,Concrete Jungle,201,Hip-Hop,true',
+  '5,Thunder Road,231,Rock,false',
+  '6,Fuego Nocturno,207,Latin,true',
+].join('\n');
 
 interface BulkImportDialogProps {
   open: boolean;
@@ -85,15 +96,32 @@ export const BulkImportDialog = ({
     setCsvContent(content);
   };
 
+  const handleDownloadTemplate = () => {
+    const blob = new Blob([CSV_TEMPLATE_CONTENT], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'tracks-bulk-import-template.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle>Bulk Import Tracks</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
-          <Button variant="outlined" component="label" startIcon={<UploadFileIcon />}>
-            Upload CSV
-            <input hidden type="file" accept=".csv,text/csv" onChange={handleFileChange} />
-          </Button>
+          <Stack direction="row" spacing={1}>
+            <Button variant="outlined" component="label" startIcon={<UploadFileIcon />}>
+              Upload CSV
+              <input hidden type="file" accept=".csv,text/csv" onChange={handleFileChange} />
+            </Button>
+            <Button variant="text" startIcon={<DownloadIcon />} onClick={handleDownloadTemplate}>
+              Download Template
+            </Button>
+          </Stack>
 
           {fileName ? (
             <Alert severity="info">{fileName} loaded. Click Preview to validate rows.</Alert>
