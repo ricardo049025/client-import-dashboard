@@ -78,47 +78,6 @@ public class BaseRepository<T>: IBaseRepository<T> where T : class
     /// Finds an entity of type T based on given filters asynchronously.
     /// </summary>
     /// <param name="filters">The filter expression.</param>
-    /// <returns>The found entity or a default instance of T.</returns>
-    public async Task<T> FindByFiltersAsync(Expression<Func<T, bool>> filters) => await this._context.Set<T>().FirstOrDefaultAsync(filters) ?? Activator.CreateInstance<T>();
-
-    /// <summary>
-    /// Finds an entity of type T based on given filters asynchronously with includes.
-    /// </summary>
-    /// <param name="filters">The filter expression.</param>
-    /// <param name="include">The include function.</param>
-    /// <returns>The found entity or a default instance of T.</returns>
-    public async Task<T> FindByFiltersAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include)
-        => await include(this._context.Set<T>()).FirstOrDefaultAsync(filters) ?? Activator.CreateInstance<T>();
-
-    /// <summary>
-    /// Finds an entity of type T based on given filters without tracking asynchronously.
-    /// </summary>
-    /// <param name="filters">The filter expression.</param>
-    /// <returns>The found entity or a default instance of T.</returns>
-    public async Task<T> FindByFiltersWithNoTrackingAsync(Expression<Func<T, bool>> filters) => await this._context.Set<T>().AsNoTracking().FirstOrDefaultAsync(filters) ?? Activator.CreateInstance<T>();
-
-    /// <summary>
-    /// Finds an entity of type T based on given filters without tracking asynchronously with includes.
-    /// </summary>
-    /// <param name="filters">The filter expression.</param>
-    /// <param name="include">The include function.</param>
-    /// <returns>The found entity or a default instance of T.</returns>
-    public async Task<T> FindByFiltersWithNoTrackingAsync(Expression<Func<T, bool>> filters, Func<IQueryable<T>, IQueryable<T>> include)
-        => await include(this._context.Set<T>()).AsNoTracking().FirstOrDefaultAsync(filters) ?? Activator.CreateInstance<T>();
-
-    /// <summary>
-    /// Finds a projected entity of type TResult based on given filters asynchronously.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the projected entity.</typeparam>
-    /// <param name="filters">The filter expression.</param>
-    /// <param name="selectors">The projection expression.</param>
-    /// <returns>The found projected entity or a default instance of TResult.</returns>
-    public async Task<TResult> FindByFiltersAsync<TResult>(Expression<Func<T, bool>> filters, Expression<Func<T, TResult>> selectors) => await this._context.Set<T>().Where(filters).Select(selectors).FirstOrDefaultAsync() ?? Activator.CreateInstance<TResult>();
-
-    /// <summary>
-    /// Finds an entity of type T based on given filters asynchronously.
-    /// </summary>
-    /// <param name="filters">The filter expression.</param>
     /// <returns>The found entity or null.</returns>
     public async Task<T?> FindFirstOrDefaultAsync(Expression<Func<T, bool>> filters) => await this._context.Set<T>().FirstOrDefaultAsync(filters);
 
@@ -132,13 +91,14 @@ public class BaseRepository<T>: IBaseRepository<T> where T : class
         => await include(this._context.Set<T>()).FirstOrDefaultAsync(filters);
 
     /// <summary>
-    /// Finds a projected entity of type TResult based on given filters without tracking asynchronously.
+    /// Finds a projected entity of type TResult based on given filters asynchronously.
     /// </summary>
     /// <typeparam name="TResult">The type of the projected entity.</typeparam>
     /// <param name="filters">The filter expression.</param>
     /// <param name="selectors">The projection expression.</param>
-    /// <returns>The found projected entity or a default instance of TResult.</returns>
-    public async Task<TResult> FindByFiltersWithNoTrackingAsync<TResult>(Expression<Func<T, bool>> filters, Expression<Func<T, TResult>> selectors) => await this._context.Set<T>().AsNoTracking().Where(filters).Select(selectors).FirstOrDefaultAsync() ?? Activator.CreateInstance<TResult>();
+    /// <returns>The found projected entity or null/default.</returns>
+    public async Task<TResult?> FindFirstOrDefaultAsync<TResult>(Expression<Func<T, bool>> filters, Expression<Func<T, TResult>> selectors)
+        => await this._context.Set<T>().Where(filters).Select(selectors).FirstOrDefaultAsync();
 
     /// <summary>
     /// Finds an entity of type T based on given filters without tracking asynchronously.
@@ -157,13 +117,24 @@ public class BaseRepository<T>: IBaseRepository<T> where T : class
         => await include(this._context.Set<T>()).AsNoTracking().FirstOrDefaultAsync(filters);
 
     /// <summary>
+    /// Finds a projected entity of type TResult based on given filters without tracking asynchronously.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the projected entity.</typeparam>
+    /// <param name="filters">The filter expression.</param>
+    /// <param name="selectors">The projection expression.</param>
+    /// <returns>The found projected entity or null/default.</returns>
+    public async Task<TResult?> FindFirstOrDefaultWithNoTrackingAsync<TResult>(Expression<Func<T, bool>> filters, Expression<Func<T, TResult>> selectors)
+        => await this._context.Set<T>().AsNoTracking().Where(filters).Select(selectors).FirstOrDefaultAsync();
+
+    /// <summary>
     /// Retrieves a value based on given filters asynchronously.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     /// <param name="filters">The filter expression.</param>
     /// <param name="selector">The value selector expression.</param>
-    /// <returns>The retrieved value or a default value of TValue.</returns>
-    public async Task<TValue?> GetValueByFiltersAsync<TValue>(Expression<Func<T, bool>> filters, Expression<Func<T, TValue>> selector) => await this._context.Set<T>().AsNoTracking().Where(filters).Select(selector).FirstOrDefaultAsync() ?? Activator.CreateInstance<TValue>();
+    /// <returns>The retrieved value or null/default.</returns>
+    public async Task<TValue?> GetValueByFiltersAsync<TValue>(Expression<Func<T, bool>> filters, Expression<Func<T, TValue>> selector)
+        => await this._context.Set<T>().AsNoTracking().Where(filters).Select(selector).FirstOrDefaultAsync();
 
     /// <summary>
     /// Retrieves the count of entities based on given filters asynchronously.

@@ -130,3 +130,5 @@ Defined in `Domain.Domain/Constants/ApiEndpointsPath.cs`:
 - 2026-08-28: Albums/tracks/bulk import backend implemented.
 - 2026-08-28: Generic repository include overloads added and services refactored toward repository-first approach.
 - 2026-08-28: Tracker updated to reflect post-refactor structure and current completion state.
+- 2026-08-28: Removed default-instance repository find APIs and standardized nullable first-or-default usage to eliminate not-found ambiguity.
+- 2026-08-28: Confirmed import history is only written when bulk import confirmation actually inserts valid rows.
