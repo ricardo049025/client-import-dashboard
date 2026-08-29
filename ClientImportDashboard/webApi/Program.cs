@@ -8,6 +8,16 @@ using webApi;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173", "https://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 builder.Services.AddDbContext<ApiDbContext>(options => options.UseInMemoryDatabase("ClientImportDb"));
 builder.Services.RegisterRepositories();
 builder.Services.AddScoped<IGenresService, Services.Main.GenresService>();
@@ -23,6 +33,7 @@ var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
 await AppDbSeeder.SeedAsync(context);
 
 app.UseHttpsRedirection(); 
+app.UseCors("FrontendPolicy");
 app.UseAuthorization();
 app.ConfigureApiEndpoints();
 app.MapControllers();
