@@ -29,6 +29,9 @@ export const DashboardPage = () => {
     queryFn: dashboardApi.getSummary,
   });
 
+  const albumsByGenre = data?.albumsByGenre ?? [];
+  const recentImports = data?.recentImports ?? [];
+
   return (
     <>
       <PageHeader title="Dashboard" subtitle="Overview of albums, tracks, genres, and recent imports." />
@@ -57,12 +60,12 @@ export const DashboardPage = () => {
                     Albums by Genre
                   </Typography>
                   <List dense disablePadding>
-                    {data.albumsByGenre.length === 0 ? (
+                    {albumsByGenre.length === 0 ? (
                       <ListItem>
                         <ListItemText primary="No genre data yet." />
                       </ListItem>
                     ) : (
-                      data.albumsByGenre.map((item) => (
+                      albumsByGenre.map((item) => (
                         <ListItem key={item.genre} divider>
                           <ListItemText primary={item.genre} secondary={`${item.albumCount} album(s)`} />
                         </ListItem>
@@ -80,12 +83,12 @@ export const DashboardPage = () => {
                     Recent Imports
                   </Typography>
                   <List dense disablePadding>
-                    {data.recentImports.length === 0 ? (
+                    {recentImports.length === 0 ? (
                       <ListItem>
                         <ListItemText primary="No imports yet." />
                       </ListItem>
                     ) : (
-                      data.recentImports.map((item, index) => (
+                      recentImports.map((item, index) => (
                         <ListItem key={`${item.albumId}-${item.importedAtUtc}-${index}`} divider>
                           <ListItemText
                             primary={item.albumTitle}
