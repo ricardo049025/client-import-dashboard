@@ -16,9 +16,9 @@ public static class AppDbSeeder
 
         var genreByName = genres.ToDictionary(genre => genre.Name);
 
-        var album1 = new Album { Title = "Neon Nights",ArtistName = "Luna Reyes",ReleaseDate = new DateOnly(2025, 6, 14),CoverImageUrl = "https://placehold.co/400x400/1e293b/ffffff?text=Neon+Nights"};
-        var album2 = new Album {Title = "Coastal Echoes",ArtistName = "The Blue Lines",ReleaseDate = new DateOnly(2024, 11, 8),CoverImageUrl = "https://placehold.co/400x400/0f766e/ffffff?text=Coastal+Echoes"};
-        var album3 = new Album {Title = "Ritmo del Sol",ArtistName = "María Sol",ReleaseDate = new DateOnly(2026, 2, 20),CoverImageUrl = "https://placehold.co/400x400/b45309/ffffff?text=Ritmo+del+Sol"};
+        var album1 = new Album { Title = "Neon Nights",ArtistName = "Luna Reyes",ReleaseDate = new DateOnly(2025, 6, 14),CoverImageUrl = "https://i.scdn.co/image/ab67616d00001e02a0ad79db81c0f95bf4c0c6ea" };
+        var album2 = new Album {Title = "Coastal Echoes",ArtistName = "The Blue Lines",ReleaseDate = new DateOnly(2024, 11, 8),CoverImageUrl = "https://www.extrememusic.com/albums/3655" };
+        var album3 = new Album {Title = "Ritmo del Sol",ArtistName = "María Sol",ReleaseDate = new DateOnly(2026, 2, 20),CoverImageUrl = "https://www.deezer.com/es/album/606003252" };
 
         context.Albums.AddRange(album1, album2, album3);
         await context.SaveChangesAsync();

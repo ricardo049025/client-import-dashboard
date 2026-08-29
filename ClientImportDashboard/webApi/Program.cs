@@ -15,6 +15,8 @@ builder.Services.RegisterServices();
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment()) app.MapOpenApi();
+
 using var scope = app.Services.CreateScope();
 var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
 await AppDbSeeder.SeedAsync(context);
