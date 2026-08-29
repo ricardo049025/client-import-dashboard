@@ -26,6 +26,4 @@ app.UseCors(CorsConfigurationExtension.FrontendPolicyName);
 app.UseAuthorization();
 app.ConfigureApiEndpoints();
 app.MapControllers();
-Console.WriteLine($"Environment: {app.Environment.EnvironmentName}");
-Console.WriteLine($"Cors:AllowedOrigins => {string.Join(", ", app.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [])}");
 app.Run();
