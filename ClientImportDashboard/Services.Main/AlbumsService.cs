@@ -2,7 +2,7 @@ using Domain.Domain.DTOs.Requests;
 using Domain.Domain.DTOs.Responses;
 using Domain.Domain.Interfaces.Repositories;
 using Domain.Domain.Interfaces.Services;
-using Domain.Entities;
+using Domain.Entities.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Services.Main;

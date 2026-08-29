@@ -1,6 +1,6 @@
 ﻿using Domain.Domain.Interfaces.Repositories;
 using Domain.Domain.Interfaces.Services;
-using Domain.Entities;
+using Domain.Entities.Entities;
 
 namespace Services.Main;
 

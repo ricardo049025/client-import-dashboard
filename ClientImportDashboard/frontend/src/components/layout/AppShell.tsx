@@ -1,10 +1,8 @@
 import LibraryMusicIcon from '@mui/icons-material/LibraryMusic';
-import SpaceDashboardOutlinedIcon from '@mui/icons-material/SpaceDashboardOutlined';
 import { AppBar, Box, Button, Container, Stack, Toolbar, Typography } from '@mui/material';
-import { NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet } from 'react-router-dom';
 
 const links = [
-  { to: '/', label: 'Dashboard', icon: <SpaceDashboardOutlinedIcon fontSize="small" /> },
   { to: '/albums', label: 'Albums', icon: <LibraryMusicIcon fontSize="small" /> },
 ];
 
@@ -14,7 +12,9 @@ export const AppShell = () => {
       <AppBar position="static" elevation={0} sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
         <Toolbar sx={{ gap: 2 }}>
           <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 700 }}>
-            Client Import Dashboard
+            <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+              Music &amp; Albums Studio
+            </Link>
           </Typography>
           <Stack direction="row" spacing={1}>
             {links.map((link) => (

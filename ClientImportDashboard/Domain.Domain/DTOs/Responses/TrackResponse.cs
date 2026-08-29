@@ -1,4 +1,4 @@
-using Domain.Entities;
+using Domain.Entities.Entities;
 
 namespace Domain.Domain.DTOs.Responses;
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Domain.Entities.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Domain.Entities.Contexts;
 
